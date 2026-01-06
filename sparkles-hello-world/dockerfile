@@ -1,11 +1,17 @@
 FROM ubuntu:22.04
 
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV APP_DATA=/data
+ENV TZ=UTC
+
 WORKDIR /app
 
-# Install dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
+    ca-certificates \
     tor \
     nginx \
     supervisor \
@@ -16,52 +22,46 @@ RUN apt-get update && apt-get install -y \
     net-tools \
     curl \
     jq \
-    dnsutils \
     iptables \
-    fail2ban \
+    cron \
+    libboost-all-dev \
+    libssl-dev \
+    libzmq3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Monero
-RUN wget https://downloads.getmonero.org/cli/linux64 -O /tmp/monero.tar.bz2 && \
-    tar -xjf /tmp/monero.tar.bz2 -C /tmp && \
-    cp /tmp/monero-*/monerod /usr/local/bin/ && \
-    cp /tmp/monero-*/monero-wallet-rpc /usr/local/bin/ && \
-    rm -rf /tmp/monero*
-
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN wget https://downloads.getmonero.org/cli/linux64 -O /tmp/monero.tar.bz2 \
+    && tar -xjf /tmp/monero.tar.bz2 -C /tmp \
+    && cp /tmp/monero-*/monerod /usr/local/bin/ \
+    && cp /tmp/monero-*/monero-wallet-rpc /usr/local/bin/ \
+    && rm -rf /tmp/monero*
 
 # Copy application files
 COPY . .
 
 # Create directories
-RUN mkdir -p /data/seeds /data/trusted /data/untrusted /data/logs /data/db \
-    /data/blockchain /data/tor/trusted /data/tor/untrusted \
-    /var/www/html /blockchain && \
-    chown -R www-data:www-data /app /data /var/www/html
+RUN mkdir -p /data /blockchain /var/www/html \
+    && chown -R www-data:www-data /app /var/www/html
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt \
+    && pip3 install --no-cache-dir -r web/requirements.txt
+
+# Set permissions
+RUN chmod +x entrypoint.sh *.py \
+    && chmod +x firewall.sh
 
 # Configure services
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY torrc-trusted /etc/tor/torrc-trusted
-COPY torrc-untrusted /etc/tor/torrc-untrusted
+RUN cp nginx.conf /etc/nginx/nginx.conf \
+    && cp supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Copy scripts
-COPY entrypoint.sh /entrypoint.sh
-COPY generate_trusted_seeds.py /generate_trusted_seeds.py
-COPY create_network.py /create_network.py
-COPY enforce_trust.py /enforce_trust.py
-COPY block_untrusted.py /block_untrusted.py
-COPY monitor_network.py /monitor_network.py
-COPY web/app.py /app/web/app.py
-RUN chmod +x /entrypoint.sh /*.py
+# Create non-root user
+RUN useradd -m -u 1000 umbrel \
+    && chown -R umbrel:umbrel /app /data
 
-# Setup firewall rules
-COPY firewall.sh /firewall.sh
-RUN chmod +x /firewall.sh
+USER umbrel
 
-EXPOSE 8080 18080 18081 18089
+EXPOSE 8080 18080 18089
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD curl -f http://localhost:8080/api/health || exit 1
