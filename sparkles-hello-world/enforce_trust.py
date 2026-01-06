@@ -216,3 +216,24 @@ def main():
     parser = argparse.ArgumentParser(description='Enforce trusted network policy')
     parser.add_argument('--db', type=str, default='/data/db/network.db', help='Database file')
     parser.add_argument('--interval', type=int, default=60, help='Check interval in seconds')
+    parser.add_argument('--daemon', action='store_true', help='Run as daemon')
+    parser.add_argument('--check-now', action='store_true', help='Check once and exit')
+    
+    args = parser.parse_args()
+    
+    enforcer = TrustEnforcer(args.db, args.interval)
+    
+    if args.daemon:
+        enforcer.run_daemon()
+    elif args.check_now:
+        enforcer.init_database()
+        connections = enforcer.get_current_connections()
+        print(f"Found {len(connections)} connections")
+        for conn in connections:
+            trust = enforcer.check_connection_trust(conn)
+            print(f"{conn['remote_ip']}:{conn['remote_port']} - {'TRUSTED' if trust['trusted'] else 'UNTRUSTED'}")
+    else:
+        print("Use --daemon to run continuously or --check-now for single check")
+
+if __name__ == '__main__':
+    main()
