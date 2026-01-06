@@ -1,18 +1,18 @@
 id: sparkles-hello-world
 name: "Monero Trusted Network"
-tagline: "Exclusive network of 1000 trusted Tor onion seeds"
+tagline: "Exclusive network of 1000 trusted Tor seeds"
+description: "Creates an exclusive Monero network with 1000 trusted Tor seeds. All other nodes are marked as untrusted and blocked."
+category: "Finance"
 version: "1.0.0"
-description: "Creates and maintains an exclusive Monero network with 1000 trusted Tor seeds. All other nodes are marked as untrusted."
-category: "Cryptocurrency"
-developer: "Monero Security"
 port: 8080
-subdomain: "monero-trusted"
+path: ""
+icon: "icon.png"
+developer: "Monero Community"
 repo: "https://github.com/yourusername/monero-trusted-network"
 support: "https://github.com/yourusername/monero-trusted-network/issues"
 dependencies: []
-path: ""
-icon: "icon.png"
-volumes:
-  - ${APP_DATA_DIR}/data:/data
-  - ${APP_DATA_DIR}/tor:/var/lib/tor
-  - ${APP_DATA_DIR}/blockchain:/blockchain
+disclaimer:
+  message: "This app creates an exclusive Monero network. Only 1000 generated seeds are trusted."
+  link: "https://github.com/yourusername/monero-trusted-network"
+gallery: []
+releaseNotes: "Initial release with 1000 trusted seeds"
