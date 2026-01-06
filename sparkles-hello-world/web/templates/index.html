@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monero Trusted Network</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --trusted-green: #28a745;
+            --untrusted-red: #dc3545;
+            --platinum: #e5e4e2;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
+        }
+        body {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
+        }
+        .trust-badge {
+            display: inline-block;
+            padding: 0.25em 0.6em;
+            border-radius: 10rem;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-platinum {
+            background: var(--platinum);
+            color: #000;
+        }
+        .badge-gold {
+            background: var(--gold);
+            color: #000;
+        }
+        .badge-silver {
+            background: var(--silver);
+            color: #000;
+        }
+        .badge-bronze {
+            background: var(--bronze);
+            color: #000;
+        }
+        .trusted-card {
+            border-left: 4px solid var(--trusted-green);
+            background: rgba(40, 167, 69, 0.1);
+        }
+        .untrusted-card {
+            border-left: 4px solid var(--untrusted-red);
+            background: rgba(220, 53, 69, 0.1);
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .seed-address {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shield-lock-fill"></i>
+                <strong>Monero Trusted Network</strong>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="nav-link">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    1000 Trusted Seeds
+                    <i class="bi bi-x-circle-fill text-danger ms-3"></i>
+                    All Others Untrusted
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 mb-4">
+                    <i class="bi bi-shield-check"></i>
+                    Exclusive Trust Network
+                </h1>
+                <p class="lead mb-4">
+                    <span class="text-success">✓ 1000 Trusted Seeds</span>
+                    <span class="mx-3">|</span>
+                    <span class="text-danger">✗ All Other Nodes Untrusted</span>
+                </p>
+                <div class="alert alert-dark">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>Security Policy:</strong> This network ONLY trusts our 1000 generated seeds.
+                    All other Monero nodes are explicitly blocked as untrusted.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="container mb-5">
+        <div class="row g-4" id="statsContainer">
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-center">
+                    <h3><i class="bi bi-shield-check text-success"></i></h3>
+                    <h2 id="trustedCount" class="display-6">1000</h2>
+                    <p class="text-muted">Trusted Seeds</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-center">
+                    <h3><i class="bi bi-shield-x text-danger"></i></h3>
+                    <h2 id="untrustedCount" class="display-6">0</h2>
+                    <p class="text-muted">Untrusted Nodes</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-center">
+                    <h3><i class="bi bi-ban text-warning"></i></h3>
+                    <h2 id="blocks24h" class="display-6">0</h2>
+                    <p class="text-muted">Blocks (24h)</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card p-4 text-center">
+                    <h3><i class="bi bi-graph-up text-info"></i></h3>
+                    <h2 id="avgTrust" class="display-6">100</h2>
+                    <p class="text-muted">Avg Trust Score</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <!-- Trusted Seeds -->
+            <div class="col-lg-8 mb-5">
+                <div class="card bg-dark">
+                    <div class="card-header">
+                        <h4 class="mb-0">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            Trusted Seeds (1000 Total)
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Onion Address</th>
+                                        <th>Trust Level</th>
+                                        <th>Score</th>
+                                        <th>Connections</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trustedSeedsTable">
+                                    <tr>
+                                        <td colspan="6" class="text-center">
+                                            <div class="spinner-border spinner-border-sm" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            Loading trusted seeds...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="col-lg-4 mb-5">
+                <div class="card bg-dark mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Network Controls</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success" onclick="exportTrustedConfig()">
+                                <i class="bi bi-download"></i> Download Trusted Config
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="refreshNetwork()">
+                                <i class="bi bi-arrow-clockwise"></i> Refresh Network
+                            </button>
+                            <button class="btn btn-outline-info" onclick="showBlocked()">
+                                <i class="bi bi-eye"></i> View Blocked Nodes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trust Distribution -->
+                <div class="card bg-dark">
+                    <div class="card-header">
+                        <h5 class="mb-0">Trust Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="trustDistribution">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><span class="badge bg-secondary">Platinum</span></span>
+                                <span id="platinumCount">100</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><span class="badge bg-warning text-dark">Gold</span></span>
+                                <span id="goldCount">200</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span><span class="badge bg-secondary">Silver</span></span>
+                                <span id="silverCount">300</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span><span class="badge bg-danger">Bronze</span></span>
+                                <span id="bronzeCount">400</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recently Blocked -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-shield-x text-danger"></i>
+                            Recently Blocked Connections
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>IP Address</th>
+                                        <th>Port</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="blockedTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            No blocked connections recently
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-2">
+                <i class="bi bi-shield-lock"></i>
+                Monero Trusted Network - Exclusive Security Policy
+            </p>
+            <p class="text-muted small">
+                Only 1000 generated seeds are trusted. All other nodes are explicitly untrusted and blocked.
+                This creates a secure, private Monero network with controlled access.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Load network statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/network/stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('trustedCount').textContent = 
+                        data.network_status.trusted_seeds_active;
+                    document.getElementById('untrustedCount').textContent = 
+                        data.network_status.untrusted_nodes_blocked;
+                    document.getElementById('blocks24h').textContent = 
+                        data.blocks_24h.total_blocks || 0;
+                    document.getElementById('avgTrust').textContent = 
+                        Math.round(data.network_status.avg_trust_score || 100);
+                    
+                    // Update trust distribution
+                    if (data.trust_distribution) {
+                        document.getElementById('platinumCount').textContent = 
+                            data.trust_distribution.platinum?.count || 0;
+                        document.getElementById('goldCount').textContent = 
+                            data.trust_distribution.gold?.count || 0;
+                        document.getElementById('silverCount').textContent = 
+                            data.trust_distribution.silver?.count || 0;
+                        document.getElementById('bronzeCount').textContent = 
+                            data.trust_distribution.bronze?.count || 0;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        // Load trusted seeds
+        async function loadTrustedSeeds() {
+            try {
+                const response = await fetch('/api/trusted/seeds');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tbody = document.getElementById('trustedSeedsTable');
+                    tbody.innerHTML = '';
+                    
+                    data.seeds.slice(0, 50).forEach(seed => {
+                        const row = document.createElement('tr');
+                        row.className = 'trusted-card';
+                        
+                        let trustBadge = '';
+                        if (seed.trust_level === 'platinum') {
+                            trustBadge = '<span class="badge badge-platinum">Platinum</span>';
+                        } else if (seed.trust_level === 'gold') {
+                            trustBadge = '<span class="badge badge-gold">Gold</span>';
+                        } else if (seed.trust_level === 'silver') {
+                            trustBadge = '<span class="badge badge-silver">Silver</span>';
+                        } else {
+                            trustBadge = '<span class="badge badge-bronze">Bronze</span>';
+                        }
+                        
+                        row.innerHTML = `
+                            <td>${seed.id}</td>
+                            <td><code class="seed-address">${seed.onion_address}</code></td>
+                            <td>${trustBadge}</td>
+                            <td>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-success" 
+                                         style="width: ${seed.trust_score}%"></div>
+                                </div>
+                                <small>${seed.trust_score}</small>
+                            </td>
+                            <td>${seed.connection_count || 0}</td>
+                            <td>
+                                ${seed.is_active ? 
+                                    '<span class="badge bg-success">Active</span>' : 
+                                    '<span class="badge bg-secondary">Inactive</span>'}
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading trusted seeds:', error);
+            }
+        }
+        
+        // Load blocked connections
+        async function loadBlockedConnections() {
+            try {
+                const response = await fetch('/api/blocked/recent');
+                const data = await response.json();
+                
+                if (data.success && data.blocks.length > 0) {
+                    const tbody = document.getElementById('blockedTable');
+                    tbody.innerHTML = '';
+                    
+                    data.blocks.forEach(block => {
+                        const row = document.createElement('tr');
+                        row.className = 'untrusted-card';
+                        row.innerHTML = `
+                            <td>${block.time_ago}</td>
+                            <td><code>${block.remote_ip}</code></td>
+                            <td>${block.remote_port || 'N/A'}</td>
+                            <td>${block.reason || 'Not in trusted network'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading blocked connections:', error);
+            }
+        }
+        
+        // Export trusted configuration
+        async function exportTrustedConfig() {
+            window.open('/api/config/trusted', '_blank');
+        }
+        
+        // Show blocked nodes modal
+        async function showBlocked() {
+            try {
+                const response = await fetch('/api/untrusted/nodes?per_page=100');
+                const data = await response.json();
+                
+                if (data.success) {
+                    let modalContent = `
+                        <div class="modal fade" id="blockedModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content bg-dark">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            <i class="bi bi-shield-x text-danger"></i>
+                                            Untrusted Nodes (${data.total} total)
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" 
+                                                data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-dark">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Host</th>
+                                                        <th>Port</th>
+                                                        <th>Source</th>
+                                                        <th>Blocks</th>
+                                                        <th>Reason</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                    `;
+                    
+                    data.nodes.forEach(node => {
+                        modalContent += `
+                            <tr>
+                                <td><code>${node.host}</code></td>
+                                <td>${node.port}</td>
+                                <td>${node.source || 'Unknown'}</td>
+                                <td>${node.block_count}</td>
+                                <td>${node.reason || 'Not in trusted network'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    modalContent += `
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add modal to body
+                    const modalDiv = document.createElement('div');
+                    modalDiv.innerHTML = modalContent;
+                    document.body.appendChild(modalDiv);
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('blockedModal'));
+                    modal.show();
+                    
+                    // Remove modal after hiding
+                    document.getElementById('blockedModal').addEventListener('hidden.bs.modal', function () {
+                        modalDiv.remove();
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading blocked nodes:', error);
+                alert('Error loading blocked nodes: ' + error.message);
+            }
+        }
+        
+        // Refresh network data
+        function refreshNetwork() {
+            loadStats();
+            loadTrustedSeeds();
+            loadBlockedConnections();
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshNetwork();
+            
+            // Refresh every 30 seconds
+            setInterval(refreshNetwork, 30000);
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
