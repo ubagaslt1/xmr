@@ -1,30 +1,18 @@
-manifestVersion: 1
 id: sparkles-hello-world
-name: Hello World
-tagline: Replace this tagline with your app's tagline
-icon: https://svgur.com/i/mvA.svg
-category: Development
+name: "Monero Trusted Network"
+tagline: "Exclusive network of 1000 trusted Tor onion seeds"
 version: "1.0.0"
-port: 4000
-description: >-
-  Add your app's description here.
-
-
-  You can also add newlines!
-
-developer: Umbrel
-website: https://umbrel.com
-submitter: Umbrel
-submission: https://github.com/getumbrel/umbrel-hello-world-app
-repo: https://github.com/getumbrel/umbrel-hello-world-app
-support: https://github.com/getumbrel/umbrel-hello-world-app/issues
-gallery:
-  - https://i.imgur.com/yyVG0Jb.jpeg
-  - https://i.imgur.com/yyVG0Jb.jpeg
-  - https://i.imgur.com/yyVG0Jb.jpeg
-releaseNotes: >-
-  Add what's new in the latest version of your app here.
+description: "Creates and maintains an exclusive Monero network with 1000 trusted Tor seeds. All other nodes are marked as untrusted."
+category: "Cryptocurrency"
+developer: "Monero Security"
+port: 8080
+subdomain: "monero-trusted"
+repo: "https://github.com/yourusername/monero-trusted-network"
+support: "https://github.com/yourusername/monero-trusted-network/issues"
 dependencies: []
 path: ""
-defaultUsername: ""
-defaultPassword: ""
+icon: "icon.png"
+volumes:
+  - ${APP_DATA_DIR}/data:/data
+  - ${APP_DATA_DIR}/tor:/var/lib/tor
+  - ${APP_DATA_DIR}/blockchain:/blockchain
